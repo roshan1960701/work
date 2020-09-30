@@ -15,6 +15,7 @@ class _formState extends State<form> {
       url: 'https://upload.photobox.com/en/',
       withZoom: false,
       key: UniqueKey(),
+      withJavascript: true,
       withLocalStorage: true,
     );
   }
