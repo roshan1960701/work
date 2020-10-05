@@ -1,7 +1,12 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:work/files/form.dart';
-import 'package:work/webViewContainer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:work/Mysharedpreference.dart';
+import 'package:work/Splashscreen.dart';
+import 'package:work/form.dart';
+import 'package:work/loginform.dart';
+import 'package:work/nextPage.dart';
+import 'package:work/offline.dart';
+import 'package:work/onboarding.dart';
 
 void main() {
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -18,15 +23,30 @@ class myApp extends StatefulWidget {
 }
 
 class _myAppState extends State<myApp> {
+  // static const PrimaryColor = Color(0xFF69F0AE);
+  final custom_color = const Color(0xFF69F0AE);
+  // Colors _colors = Color(int.parse(0xFF00897B));
+  // bool isFirstTimeOpen = false;
+
+  // MyAppState() {
+  //   MySharedPreferences.instance
+  //       .getBooleanValue("firstTimeOpen")
+  //       .then((value) => setState(() {
+  //             isFirstTimeOpen = value;
+  //           }));
+  // }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "WebView",
+      title: "1Aid",
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primaryColor: Color(0xFF00897B),
+        // primarySwatch: Colors.green,
       ),
       home: homepage(),
+      //  isFirstTimeOpen ? onboarding() : Splashscreen(),
     );
   }
 }
@@ -37,103 +57,24 @@ class homepage extends StatefulWidget {
 }
 
 class _homepageState extends State<homepage> {
-  final _links = ['https://www.flipkart.com/'];
-  var connectivityResult = new Connectivity().checkConnectivity();
+  Future checkFirstSeen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _seen = (prefs.getBool('seen') ?? false);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 10.0,
-        title: Text(
-          "WebView",
-        ),
-      ),
-      body: Column(
-        children: <Widget>[
-          SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children:
-                  _links.map((link) => _urlButton(context, link)).toList(),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: MaterialButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => form()));
-              },
-              color: Colors.green,
-              minWidth: 140.0,
-              height: 40.0,
-              elevation: 10.0,
-              shape: StadiumBorder(),
-              child: Text(
-                "Form",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _urlButton(BuildContext context, String url) {
-    return Container(
-        padding: EdgeInsets.all(20.0),
-        child: MaterialButton(
-            elevation: 20.0,
-            splashColor: Colors.pink,
-            shape: StadiumBorder(),
-            minWidth: 100.0,
-            textColor: Colors.white,
-            color: Theme.of(context).primaryColor,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
-            child: Text(
-              url,
-            ),
-            onPressed: () => _checkInternetConnectivity()));
-  }
-
-  void _handleURLButtonPress(BuildContext context, String url) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WebViewContainer(url)));
-  }
-
-  _checkInternetConnectivity() async {
-    var url = "https://www.flipkart.com/";
-    var result = await Connectivity().checkConnectivity();
-    if (result == ConnectivityResult.none) {
-      _showDialog("No Internet", "You are not connectec to a network");
-    } else if (result == ConnectivityResult.mobile ||
-        result == ConnectivityResult.wifi) {
-      _handleURLButtonPress(context, url);
+    if (_seen) {
+      Navigator.of(context).pushReplacement(
+          new MaterialPageRoute(builder: (context) => new Splashscreen()));
+    } else {
+      await prefs.setBool('seen', true);
+      Navigator.of(context).pushReplacement(
+          new MaterialPageRoute(builder: (context) => new onboarding()));
     }
   }
 
-  _showDialog(title, text) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(title),
-            content: Text(text),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("OK"))
-            ],
-          );
-        });
+  @override
+  @override
+  Widget build(BuildContext context) {
+    checkFirstSeen();
+    return Scaffold();
   }
 }

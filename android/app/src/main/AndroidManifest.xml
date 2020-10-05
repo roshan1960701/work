@@ -13,7 +13,7 @@
     <application
         android:usesCleartextTraffic="true"    
         android:name="io.flutter.app.FlutterApplication"
-        android:label="work"
+        android:label="1Aid"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
